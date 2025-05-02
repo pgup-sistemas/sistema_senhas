@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Usuários{% endblock %}
+{% block content %}
+<h2 class="mb-4">Usuários do Sistema</h2>
+<a href="{{ url_for('admin.novo_usuario') }}" class="btn btn-primary mb-3">Novo Usuário</a>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Usuário</th>
+      <th>Admin</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in usuarios %}
+    <tr>
+      <td>{{ u.username }}</td>
+      <td>{% if u.is_admin %}<span class="badge bg-success">Sim</span>{% else %}Não{% endif %}</td>
+      <td>
+        <a href="{{ url_for('admin.editar_usuario', user_id=u.id) }}" class="btn btn-warning btn-sm">Editar</a>
+        {% if u.username != 'admin' %}
+        <form method="post" action="{{ url_for('admin.delete_usuario', user_id=u.id) }}" style="display:inline;">
+          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remover este usuário?')">Remover</button>
+        </form>
+        {% else %}
+        <span class="text-muted">Padrão</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3" class="text-center">Nenhum usuário cadastrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary mt-3">Voltar ao Dashboard</a>
+{% endblock %}

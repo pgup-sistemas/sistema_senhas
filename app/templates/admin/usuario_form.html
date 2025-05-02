@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Novo Usuário{% endblock %}
+{% block content %}
+<h2 class="mb-4">Novo Usuário</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="username" class="form-label">Usuário</label>
+    <input type="text" class="form-control" id="username" name="username" required autofocus>
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Senha</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" value="1" id="is_admin" name="is_admin">
+    <label class="form-check-label" for="is_admin">Administrador</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Salvar</button>
+  <a href="{{ url_for('admin.usuarios') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

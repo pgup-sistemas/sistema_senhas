@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Configurações Gerais{% endblock %}
+{% block content %}
+<h2 class="mb-4">Configurações Gerais do Sistema</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="nome_clinica" class="form-label">Nome da Clínica</label>
+    <input type="text" class="form-control" id="nome_clinica" name="nome_clinica" value="{{ config.get('nome_clinica', '') }}">
+  </div>
+  <div class="mb-3">
+    <label for="mensagem_painel" class="form-label">Mensagem no Painel</label>
+    <input type="text" class="form-control" id="mensagem_painel" name="mensagem_painel" value="{{ config.get('mensagem_painel', '') }}">
+  </div>
+  <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary mt-3">Voltar ao Dashboard</a>
+{% endblock %}

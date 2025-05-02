@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}Monitor de Chamadas{% endblock %}
+{% block head %}
+<style>
+  body[data-theme="dark"] {
+    background-color: #222;
+    color: #f8f9fa;
+  }
+  body[data-theme="dark"] .card, body[data-theme="dark"] .navbar, body[data-theme="dark"] .alert {
+    background-color: #343a40;
+    color: #f8f9fa;
+    border-color: #444;
+  }
+  body[data-theme="dark"] .btn {
+    border-color: #444;
+  }
+  .painel-equal-height {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .painel-equal-height > .col-md-6 {
+    display: flex;
+    flex-direction: column;
+  }
+  .painel-equal-height .card.h-100 {
+    height: 100%;
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">Monitor de Chamadas</h2>
+  <button id="toggle-theme" class="btn btn-outline-secondary">Alternar Tema</button>
+  <button id="testar-som" class="btn btn-outline-success ms-2" style="font-size:1rem;">Testar Som</button>
+</div>
+{% if config_mensagem_painel %}
+<div class="alert alert-info text-center">{{ config_mensagem_painel }}</div>
+{% endif %}
+<div class="row align-items-stretch painel-equal-height" id="painel-layout">
+  <div class="col-md-6 mb-4">
+    <div id="ultima-senha"></div>
+  </div>
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header text-center fw-bold">Últimas 5 Senhas Chamadas</div>
+      <ul class="list-group list-group-flush" id="ultimas-senhas-list"></ul>
+    </div>
+  </div>
+</div>
+<div class="text-center mt-5" style="opacity:0.12; font-size:2.5rem; letter-spacing:2px; user-select:none;">
+  {{ nome_clinica or 'Nome da Clínica' }}
+</div>
+<audio id="audio-chamada" src="/static/audio/notificacao.mp3" preload="auto"></audio>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+  // Tema escuro
+  const themeBtn = document.getElementById('toggle-theme');
+  themeBtn.addEventListener('click', () => {
+    if(document.body.getAttribute('data-theme') === 'dark') {
+      document.body.removeAttribute('data-theme');
+      localStorage.removeItem('theme');
+    } else {
+      document.body.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+  // Persistência do tema
+  if(localStorage.getItem('theme') === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+  }
+  // Painel e som
+  const audio = document.getElementById('audio-chamada');
+  let lastSenhas = [];
+  let cachedSenhas = [];
+  const socket = io();
+
+  // Fila de anúncios de chamadas (garante que todas sejam faladas/tocadas, sem cortar)
+  let filaChamadas = [];
+  let anunciando = false;
+
+  function anunciarSenha(senha) {
+    anunciando = true;
+    audio.currentTime = 0;
+    audio.play();
+    let texto = `Senha ${senha.tipo_sigla}${String(senha.numero).padStart(3, '0')}`;
+    if (senha.guiche) {
+      let guicheStr = String(senha.guiche);
+      if (!guicheStr.toLowerCase().includes('guichê')) {
+        texto += `, guichê ${guicheStr}`;
+      } else {
+        texto += `, ${guicheStr}`;
+      }
+    }
+    if ('speechSynthesis' in window) {
+      let utter = new SpeechSynthesisUtterance(texto);
+      utter.lang = 'pt-BR';
+      utter.rate = 0.95;
+      utter.volume = 1;
+      utter.onend = () => {
+        anunciando = false;
+        if (filaChamadas.length > 0) {
+          setTimeout(() => anunciarSenha(filaChamadas.shift()), 200);
+        }
+      };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    } else {
+      // Se não houver speechSynthesis, apenas aguarda o áudio
+      setTimeout(() => {
+        anunciando = false;
+        if (filaChamadas.length > 0) anunciarSenha(filaChamadas.shift());
+      }, 2000);
+    }
+  }
+
+  // Última senha anunciada (para evitar duplicidade)
+  let ultimaAnunciada = { numero: null, chamada_em: null };
+
+  function tentarAnunciar(senha) {
+    if (
+      senha && senha.status === 'chamando' &&
+      (senha.numero !== ultimaAnunciada.numero || senha.chamada_em !== ultimaAnunciada.chamada_em)
+    ) {
+      filaChamadas.push(senha);
+      ultimaAnunciada = { numero: senha.numero, chamada_em: senha.chamada_em };
+      if (!anunciando) anunciarSenha(filaChamadas.shift());
+    }
+  }
+
+  function atualizarPainel(senhas) {
+    cachedSenhas = senhas;
+    // Última senha chamada (esquerda)
+    const ultima = senhas.length > 0 ? senhas[0] : null;
+    let ultimaHtml = '';
+    if (ultima) {
+      ultimaHtml = `<div class='card text-center shadow-lg h-100'>
+        <div class='card-body d-flex flex-column justify-content-center'>
+          <div class='text-muted mb-2'>Última chamada</div>
+          <h1 class='display-1 fw-bold mb-2'>${ultima.tipo_sigla}${String(ultima.numero).padStart(3, '0')}</h1>
+          <div class='mb-2 fs-4'><span class='fw-bold text-info'>${ultima.guiche || '-'}</span></div>
+          <div class='fs-5 text-secondary'>${ultima.tipo_nome}</div>
+          <div class='mt-2 text-muted small'>${ultima.chamada_em || ''}</div>
+          <span class='badge bg-${ultima.status === 'finalizado' ? 'secondary' : (ultima.status === 'chamando' ? 'warning text-dark' : 'info')} mt-2'>${ultima.status.charAt(0).toUpperCase() + ultima.status.slice(1)}</span>
+        </div>
+      </div>`;
+    }
+    document.getElementById('ultima-senha').innerHTML = ultimaHtml;
+
+    // Lista das últimas 5 senhas chamadas (direita)
+    let ultimasHtml = '';
+    senhas.slice(0, 5).forEach(s => {
+      ultimasHtml += `<li class='list-group-item d-flex flex-column flex-md-row justify-content-between align-items-center py-3'>
+        <div class='d-flex align-items-center gap-3'>
+          <span class='fw-bold fs-4'>${s.tipo_sigla}${String(s.numero).padStart(3, '0')}</span>
+          <span class='badge bg-${s.status === 'finalizado' ? 'secondary' : (s.status === 'chamando' ? 'warning text-dark' : 'info')}'>${s.status.charAt(0).toUpperCase() + s.status.slice(1)}</span>
+        </div>
+        <div class='d-flex align-items-center gap-3 mt-2 mt-md-0'>
+          <span class='text-secondary'>${s.tipo_nome}</span>
+          <span class='badge bg-info fs-6'> ${s.guiche || '-'}</span>
+          <span class='text-muted small ms-2'>${s.chamada_em || ''}</span>
+        </div>
+      </li>`;
+    });
+    document.getElementById('ultimas-senhas-list').innerHTML = ultimasHtml;
+
+    // Tentar anunciar a senha mais recente
+    tentarAnunciar(senhas[0]);
+    lastSenhas = senhas;
+  }
+
+  // Atualização automática via socket
+  socket.on('update_painel', (data) => {
+    atualizarPainel(data.senhas);
+  });
+  // Requisição inicial ao carregar/recarregar a página
+  function carregarSenhasIniciais() {
+    socket.emit('get_painel');
+  }
+  window.addEventListener('DOMContentLoaded', carregarSenhasIniciais);
+
+  document.getElementById('testar-som').addEventListener('click', function() {
+    audio.currentTime = 0;
+    audio.play();
+    if ('speechSynthesis' in window) {
+      let utter = new SpeechSynthesisUtterance('Teste de voz do painel.');
+      utter.lang = 'pt-BR';
+      utter.rate = 0.95;
+      utter.volume = 1;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Ajuda e Perguntas Frequentes{% endblock %}
+{% block content %}
+<div class="container mt-4 mb-5">
+  <h2 class="mb-4">Ajuda e Perguntas Frequentes (FAQ)</h2>
+  <div class="accordion" id="faqAccordion">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading1">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+          Como emitir uma senha?
+        </button>
+      </h2>
+      <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="heading1" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          No totem ou página inicial, escolha o tipo de atendimento e clique no botão correspondente. Sua senha será exibida na tela e, se disponível, impressa automaticamente.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading2">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+          Como chamar, repetir ou finalizar uma senha?
+        </button>
+      </h2>
+      <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          No painel do operador, você pode:
+          <ul>
+            <li><b>Chamar</b>: Selecionar a senha e clicar em "Chamar" para anunciar no monitor público.</li>
+            <li><b>Repetir</b>: Clicar em "Repetir" para anunciar novamente a mesma senha.</li>
+            <li><b>Finalizar</b>: Após o atendimento, clique em "Finalizar" para encerrar a senha.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading3">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+          Como funciona o monitor público?
+        </button>
+      </h2>
+      <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          O monitor exibe a última senha chamada em destaque e uma lista das 5 últimas chamadas, com guichê, horário e tipo. O sistema anuncia cada chamada com som e voz, mesmo se vários operadores chamarem ao mesmo tempo.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading4">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+          Como imprimir senhas?
+        </button>
+      </h2>
+      <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          <b>Linux:</b> Impressão automática via CUPS e pycups, compatível com impressoras térmicas.<br>
+          <b>Windows:</b> Impressão automática não suportada. Imprima manualmente a senha exibida na tela.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading5">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+          Como alternar entre tema claro e escuro?
+        </button>
+      </h2>
+      <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          No monitor, clique no botão "Alternar Tema" para escolher entre tema claro e escuro.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading6">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
+          Como testar o som do monitor?
+        </button>
+      </h2>
+      <div id="collapse6" class="accordion-collapse collapse" aria-labelledby="heading6" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Use o botão "Testar Som" no monitor para verificar se o áudio e a voz estão funcionando corretamente. Se não ouvir nada, veja a seção de <a href="/ajuda#troubleshooting">Solução de Problemas</a>.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading7">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="false" aria-controls="collapse7">
+          O que fazer em caso de erro ou dúvida?
+        </button>
+      </h2>
+      <div id="collapse7" class="accordion-collapse collapse" aria-labelledby="heading7" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Consulte a seção <b>Solução de Problemas</b> no README ou nesta página. Se não resolver, entre em contato com o suporte ou responsável pelo sistema.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading8">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
+          Quem pode cadastrar novos usuários e acessar configurações administrativas?
+        </button>
+      </h2>
+      <div id="collapse8" class="accordion-collapse collapse" aria-labelledby="heading8" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Somente usuários com perfil <b>Administrador</b> podem:
+          <ul>
+            <li>Adicionar, editar ou remover outros usuários do sistema</li>
+            <li>Acessar o painel administrativo</li>
+            <li>Alterar tipos de atendimento, configurações do sistema e visualizar relatórios</li>
+          </ul>
+          Operadores comuns não têm acesso a essas funções.<br>
+          Para solicitar acesso administrativo, entre em contato com o administrador do sistema.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading9">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse9" aria-expanded="false" aria-controls="collapse9">
+          Quais são as telas do sistema e como acessar cada uma?
+        </button>
+      </h2>
+      <div id="collapse9" class="accordion-collapse collapse" aria-labelledby="heading9" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          O sistema possui as seguintes telas principais:<br><br>
+          <b>1. Página Inicial / Landing Page</b><br>
+          <ul>
+            <li><b>Rota:</b> <code>/</code></li>
+            <li><b>Como acessar:</b> Acesse o endereço principal do sistema. Esta é a página de apresentação (landing page), onde o usuário encontra informações básicas e o botão <b>Área de Acesso</b> para operadores e administradores entrarem nas áreas restritas.</li>
+          </ul>
+          <b>2. Painel do Operador</b><br>
+          <ul>
+            <li><b>Rota:</b> <code>/operador/login</code> (login) e <code>/operador</code> (painel)</li>
+            <li><b>Como acessar:</b> Clique em <b>Área de Acesso</b> na landing page, faça login como operador e acesse o painel para chamar, repetir e finalizar senhas, além de ver o histórico do seu guichê.</li>
+          </ul>
+          <b>3. Painel Administrativo</b><br>
+          <ul>
+            <li><b>Rota:</b> <code>/admin/login</code> (login) e <code>/admin</code> (painel)</li>
+            <li><b>Como acessar:</b> Clique em <b>Área de Acesso</b> na landing page, faça login como administrador para acessar o painel administrativo, onde é possível gerenciar usuários, tipos de atendimento, relatórios e configurações.</li>
+          </ul>
+          <b>4. Monitor Público de Chamadas</b><br>
+          <ul>
+            <li><b>Rota:</b> <code>/monitor</code></li>
+            <li><b>Como acessar:</b> Qualquer pessoa pode acessar diretamente. Exibe a última senha chamada em destaque e as últimas 5 senhas, com guichê e horário. Recomendado para TVs ou monitores em áreas de espera.</li>
+          </ul>
+          <b>Dica:</b> Os links para cada área estão disponíveis no menu superior do sistema, conforme o perfil do usuário.<br>
+          <b>Observação:</b> O endereço base pode variar conforme o ambiente (localhost, rede interna ou domínio público).
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-5">
+    <h5>Precisa de mais ajuda?</h5>
+    <p>Entre em contato com o administrador do sistema ou envie uma mensagem para o suporte técnico.</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+  .btn, .form-select, .form-control {
+    min-width: 120px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .d-flex .btn, .d-flex .form-select, .d-flex .form-control {
+    margin-bottom: 0;
+  }
+  .list-group-item .btn {
+    min-width: 100px;
+  }
+  .action-btn-group .btn {
+    margin-bottom: 0.5rem;
+    margin-right: 0;
+    margin-left: 0;
+  }
+  .action-btn-group .btn + .btn {
+    margin-top: 0.5rem;
+  }
+</style>
+{% block title %}Painel do Operador{% endblock %}
+<body class="d-flex flex-column min-vh-100">
+{% block content %}
+<h2>Painel do Operador</h2>
+<!-- Topo do Painel: Sair, Guichê, Usuário -->
+<div class="d-flex flex-wrap align-items-center justify-content-start mb-4 gap-3">
+  <form method="post" action="{{ url_for('operator.set_guiche') }}" class="d-inline-flex align-items-center me-2">
+    <label for="guiche_id" class="me-1 mb-0"><i class="bi bi-house-door"></i> Guichê</label>
+    <select name="guiche_id" id="guiche_id" class="form-select form-select-sm me-2" style="width:auto;display:inline-block;">
+      {% for guiche in guiches %}
+        <option value="{{ guiche.id }}" {% if current_user.guiche_id == guiche.id %}selected{% endif %}>{{ guiche.nome }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-outline-primary btn-sm">Trocar</button>
+  </form>
+  <span class="badge bg-primary align-self-center">Guichê atual: {{ current_user.guiche.nome if current_user.guiche else '--' }}</span>
+  <span class="ms-auto text-muted small"><i class="bi bi-person-circle"></i> {{ current_user.username }}</span>
+  <a href="{{ url_for('operator.logout') }}" class="btn btn-outline-danger "><i class="bi bi-box-arrow-right"></i> Sair</a>
+</div>
+<!-- Estatísticas do Operador -->
+<div class="row mb-4">
+  <div class="col-12 col-md-4">
+    <div class="card text-center shadow-sm border-primary">
+      <div class="card-body">
+        <i class="bi bi-person-badge display-6 text-primary"></i>
+        <h6 class="mt-2">Senhas atendidas hoje</h6>
+        <p class="fs-3 fw-bold mb-0">{{ total_atendidas }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card text-center shadow-sm border-success">
+      <div class="card-body">
+        <i class="bi bi-clock-history display-6 text-success"></i>
+        <h6 class="mt-2">Tempo médio de atendimento</h6>
+        <p class="fs-3 fw-bold mb-0">
+          {% if tempo_medio is not none %}
+            {{ (tempo_medio // 60) }}m {{ (tempo_medio % 60) }}s
+          {% else %}--{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card text-center shadow-sm border-info">
+      <div class="card-body">
+        <i class="bi bi-hash display-6 text-info"></i>
+        <h6 class="mt-2">Guichê Selecionado</h6>
+        <p class="fs-3 fw-bold mb-0">{{ current_user.guiche.nome if current_user.guiche else '--' }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid flex-grow-1">
+  <div class="row g-4">
+    <!-- Fila de Senhas Geradas -->
+    <div class="col-12 col-md-6">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Fila de Senhas</h4>
+        <button class="btn btn-sm btn-outline-secondary" data-label-hide="Ocultar" data-label-show="Exibir" onclick="toggleList('fila-list', this)">Ocultar</button>
+      </div>
+      <div class="overflow-auto" style="max-height: 320px;">
+        <ul class="list-group mb-4" id="fila-list">
+          {% for senha in fila[:10] %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span class="fw-bold">{{ senha.tipo.sigla }}{{ '%03d'|format(senha.numero) }}</span>
+            <span class="badge bg-secondary">{{ senha.status }}</span>
+            <div class="action-btn-group d-flex flex-column">
+              <form method="post" action="{{ url_for('operator.call_next', senha_id=senha.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-success btn-sm w-100">Chamar</button>
+              </form>
+            </div>
+          </li>
+          {% endfor %}
+          {% for senha in fila[10:] %}
+          <li class="list-group-item d-flex justify-content-between align-items-center extra-item" style="display:none;">
+            <span class="fw-bold">{{ senha.tipo.sigla }}{{ '%03d'|format(senha.numero) }}</span>
+            <span class="badge bg-secondary">{{ senha.status }}</span>
+            <div class="action-btn-group d-flex flex-column">
+              <form method="post" action="{{ url_for('operator.call_next', senha_id=senha.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-success btn-sm w-100">Chamar</button>
+              </form>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if fila|length > 10 %}
+        <button id="btn-fila-vermais" class="btn btn-sm btn-outline-primary w-100" onclick="showAllItems('fila-list','btn-fila-vermais')">Ver mais</button>
+        {% endif %}
+      </div>
+    </div>
+    <!-- Senhas em Atendimento -->
+    <div class="col-12 col-md-6">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Senhas em Atendimento</h4>
+        <button class="btn btn-sm btn-outline-secondary" data-label-hide="Ocultar" data-label-show="Exibir" onclick="toggleList('atend-list', this)">Ocultar</button>
+      </div>
+      <div class="overflow-auto" style="max-height: 320px;">
+        <ul class="list-group mb-4" id="atend-list">
+          {% for senha in em_atendimento[:10] %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span class="fw-bold">{{ senha.tipo.sigla }}{{ '%03d'|format(senha.numero) }}</span>
+            <span>{{ senha.chamada_em.strftime('%H:%M:%S') if senha.chamada_em else '' }}</span>
+            <div class="action-btn-group d-flex flex-column">
+              <a href="{{ url_for('operator.repeat_call', senha_id=senha.id) }}" class="btn btn-warning btn-sm w-100">Repetir</a>
+              <a href="{{ url_for('operator.finish', senha_id=senha.id) }}" class="btn btn-success btn-sm w-100">Finalizar</a>
+            </div>
+          </li>
+          {% endfor %}
+          {% for senha in em_atendimento[10:] %}
+          <li class="list-group-item d-flex justify-content-between align-items-center extra-item" style="display:none;">
+            <span class="fw-bold">{{ senha.tipo.sigla }}{{ '%03d'|format(senha.numero) }}</span>
+            <span>{{ senha.chamada_em.strftime('%H:%M:%S') if senha.chamada_em else '' }}</span>
+            <div class="action-btn-group d-flex flex-column">
+              <a href="{{ url_for('operator.repeat_call', senha_id=senha.id) }}" class="btn btn-warning btn-sm w-100">Repetir</a>
+              <a href="{{ url_for('operator.finish', senha_id=senha.id) }}" class="btn btn-success btn-sm w-100">Finalizar</a>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if em_atendimento|length > 10 %}
+        <button id="btn-atend-vermais" class="btn btn-sm btn-outline-primary w-100" onclick="showAllItems('atend-list','btn-atend-vermais')">Ver mais</button>
+        {% endif %}
+      </div>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="alert alert-info mt-2">{{ messages[0] }}</div>
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+  <div class="row mt-4 mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Histórico de Senhas Chamadas</h4>
+        <button class="btn btn-sm btn-outline-secondary" data-label-hide="Ocultar" data-label-show="Exibir" onclick="toggleList('hist-list', this)">Ocultar</button>
+      </div>
+      <div class="overflow-auto" style="max-height: 320px;">
+        <ul class="list-group" id="hist-list">
+          {% for senha in historico[:10] %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span class="fw-bold">{{ senha.tipo.sigla }}{{ '%03d'|format(senha.numero) }}</span>
+            <span>{{ senha.chamada_em.strftime('%H:%M:%S') if senha.chamada_em else '' }}</span>
+            <span class="badge bg-secondary">{{ senha.status }}</span>
+          </li>
+          {% endfor %}
+          {% for senha in historico[10:] %}
+          <li class="list-group-item d-flex justify-content-between align-items-center extra-item" style="display:none;">
+            <span class="fw-bold">{{ senha.tipo.sigla }}{{ '%03d'|format(senha.numero) }}</span>
+            <span>{{ senha.chamada_em.strftime('%H:%M:%S') if senha.chamada_em else '' }}</span>
+            <span class="badge bg-secondary">{{ senha.status }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if historico|length > 10 %}
+        <button id="btn-hist-vermais" class="btn btn-sm btn-outline-primary w-100" onclick="showAllItems('hist-list','btn-hist-vermais')">Ver mais</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleList(id, btn) {
+  var el = document.getElementById(id);
+  if (el.style.display === 'none') {
+    el.style.display = '';
+    btn.innerHTML = btn.dataset.labelHide;
+  } else {
+    el.style.display = 'none';
+    btn.innerHTML = btn.dataset.labelShow;
+  }
+}
+function showAllItems(listId, btnId) {
+  var list = document.getElementById(listId);
+  var items = list.querySelectorAll('.extra-item');
+  items.forEach(function(item){ item.style.display = ''; });
+  document.getElementById(btnId).style.display = 'none';
+}
+let painelInterval;
+function fetchPainelData() {
+  fetch('{{ url_for('operator.painel_data') }}').then(resp => resp.json()).then(data => {
+    updateFilaList(data.fila);
+    updateAtendList(data.em_atendimento);
+    updateHistList(data.historico);
+  });
+}
+function updateFilaList(fila) {
+  let ul = document.getElementById('fila-list');
+  if (!ul) return;
+  let html = '';
+  for (let i = 0; i < Math.min(fila.length, 10); i++) {
+    let s = fila[i];
+    html += `<li class='list-group-item d-flex justify-content-between align-items-center'>
+      <span class='fw-bold'>${s.sigla}${s.numero.toString().padStart(3, '0')}</span>
+      <span class='badge bg-secondary'>${s.status}</span>
+      <div class="action-btn-group d-flex flex-column">
+        <form method='post' action='/operador/call/${s.id}' style='display:inline;'>
+          <button type='submit' class='btn btn-success btn-sm w-100'>Chamar</button>
+        </form>
+      </div></li>`;
+  }
+  for (let i = 10; i < fila.length; i++) {
+    let s = fila[i];
+    html += `<li class='list-group-item d-flex justify-content-between align-items-center extra-item' style='display:none;'>
+      <span class='fw-bold'>${s.sigla}${s.numero.toString().padStart(3, '0')}</span>
+      <span class='badge bg-secondary'>${s.status}</span>
+      <div class="action-btn-group d-flex flex-column">
+        <form method='post' action='/operador/call/${s.id}' style='display:inline;'>
+          <button type='submit' class='btn btn-success btn-sm w-100'>Chamar</button>
+        </form>
+      </div></li>`;
+  }
+  ul.innerHTML = html;
+  let btn = document.getElementById('btn-fila-vermais');
+  if (btn) btn.style.display = fila.length > 10 ? '' : 'none';
+}
+function updateAtendList(lst) {
+  let ul = document.getElementById('atend-list');
+  if (!ul) return;
+  let html = '';
+  for (let i = 0; i < Math.min(lst.length, 10); i++) {
+    let s = lst[i];
+    html += `<li class='list-group-item d-flex justify-content-between align-items-center'>
+      <span class='fw-bold'>${s.sigla}${s.numero.toString().padStart(3, '0')}</span>
+      <span>${s.chamada_em}</span>
+      <div class="action-btn-group d-flex flex-column">
+        <a href='${url_for('operator.repeat_call', senha_id=s.id)}' class='btn btn-warning btn-sm w-100'>Repetir</a>
+        <a href='${url_for('operator.finish', senha_id=s.id)}' class='btn btn-success btn-sm w-100'>Finalizar</a>
+      </div></li>`;
+  }
+  for (let i = 10; i < lst.length; i++) {
+    let s = lst[i];
+    html += `<li class='list-group-item d-flex justify-content-between align-items-center extra-item' style='display:none;'>
+      <span class='fw-bold'>${s.sigla}${s.numero.toString().padStart(3, '0')}</span>
+      <span>${s.chamada_em}</span>
+      <div class="action-btn-group d-flex flex-column">
+        <a href='${url_for('operator.repeat_call', senha_id=s.id)}' class='btn btn-warning btn-sm w-100'>Repetir</a>
+        <a href='${url_for('operator.finish', senha_id=s.id)}' class='btn btn-success btn-sm w-100'>Finalizar</a>
+      </div></li>`;
+  }
+  ul.innerHTML = html;
+  let btn = document.getElementById('btn-atend-vermais');
+  if (btn) btn.style.display = lst.length > 10 ? '' : 'none';
+}
+function updateHistList(lst) {
+  let ul = document.getElementById('hist-list');
+  if (!ul) return;
+  let html = '';
+  for (let i = 0; i < Math.min(lst.length, 10); i++) {
+    let s = lst[i];
+    html += `<li class='list-group-item d-flex justify-content-between align-items-center'>
+      <span class='fw-bold'>${s.sigla}${s.numero.toString().padStart(3, '0')}</span>
+      <span>${s.chamada_em}</span>
+      <span class='badge bg-secondary'>${s.status}</span></li>`;
+  }
+  for (let i = 10; i < lst.length; i++) {
+    let s = lst[i];
+    html += `<li class='list-group-item d-flex justify-content-between align-items-center extra-item' style='display:none;'>
+      <span class='fw-bold'>${s.sigla}${s.numero.toString().padStart(3, '0')}</span>
+      <span>${s.chamada_em}</span>
+      <span class='badge bg-secondary'>${s.status}</span></li>`;
+  }
+  ul.innerHTML = html;
+  let btn = document.getElementById('btn-hist-vermais');
+  if (btn) btn.style.display = lst.length > 10 ? '' : 'none';
+}
+document.addEventListener('DOMContentLoaded', function() {
+  painelInterval = setInterval(fetchPainelData, 3000);
+});
+</script>
+
+{% endblock %}

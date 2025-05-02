@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ guiche and 'Editar Guichê' or 'Novo Guichê' }}</h2>
+  <form method="post">
+    <div class="mb-3">
+      <label for="nome" class="form-label">Nome</label>
+      <input type="text" class="form-control" id="nome" name="nome" value="{{ guiche.nome if guiche else '' }}" required>
+    </div>
+    <div class="mb-3">
+      <label for="descricao" class="form-label">Descrição</label>
+      <input type="text" class="form-control" id="descricao" name="descricao" value="{{ guiche.descricao if guiche else '' }}">
+    </div>
+    {% if guiche %}
+    <div class="mb-3">
+      <label class="form-label">Ativo</label>
+      <input type="checkbox" name="ativo" value="1" {% if guiche.ativo %}checked{% endif %}>
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-success">Salvar</button>
+    <a href="{{ url_for('admin_guiche.listar_guiches') }}" class="btn btn-secondary">Voltar</a>
+  </form>
+</div>
+{% endblock %}

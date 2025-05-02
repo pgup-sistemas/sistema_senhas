@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Relatórios{% endblock %}
+{% block content %}
+<a name="relatorio-senhas"></a>
+<h2 class="mb-4">Relatórios</h2>
+<form class="row g-3 mb-4" method="get">
+  <div class="col-md-3">
+    <label for="inicio" class="form-label">Data início</label>
+    <input type="date" class="form-control" id="inicio" name="inicio" value="{{ request.args.inicio }}">
+  </div>
+  <div class="col-md-3">
+    <label for="fim" class="form-label">Data fim</label>
+    <input type="date" class="form-control" id="fim" name="fim" value="{{ request.args.fim }}">
+  </div>
+  <div class="col-md-3 align-self-end">
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="{{ url_for('admin.exportar_relatorio', inicio=request.args.inicio, fim=request.args.fim) }}" class="btn btn-success ms-2">Exportar CSV</a>
+  </div>
+</form>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-primary text-white">Relatório de Senhas</div>
+      <div class="card-body p-2" style="max-height: 350px; overflow-y: auto;">
+        <table class="table table-bordered table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Senha</th>
+              <th>Tipo</th>
+              <th>Status</th>
+              <th>Guichê</th>
+              <th>Hora Chamada</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in senhas %}
+            <tr>
+              <td>{{ s.data_emissao.strftime('%d/%m/%Y') }}</td>
+              <td>{{ s.tipo.sigla }}{{ '%03d'|format(s.numero) }}</td>
+              <td>{{ s.tipo.nome }}</td>
+              <td>{{ s.status }}</td>
+              <td>{{ s.guiche or '-' }}</td>
+              <td>{{ s.chamada_em.strftime('%H:%M:%S') if s.chamada_em else '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="text-center">Nenhuma senha encontrada.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-primary text-white">Senhas Emitidas por Tipo</div>
+      <div class="card-body p-2" style="max-height: 350px; overflow-y: auto;">
+        <table class="table table-bordered table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Sigla</th>
+              <th>Quantidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for nome, sigla, total in senhas_por_tipo %}
+            <tr>
+              <td>{{ nome }}</td>
+              <td>{{ sigla }}</td>
+              <td>{{ total }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" class="text-center">Nenhum registro.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-primary text-white">Atendimentos por Guichê</div>
+      <div class="card-body p-2" style="max-height: 350px; overflow-y: auto;">
+        <table class="table table-bordered table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Guichê</th>
+              <th>Quantidade de Atendimentos</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for nome, total in atendimentos_por_guiche %}
+            <tr>
+              <td>{{ nome }}</td>
+              <td>{{ total }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2" class="text-center">Nenhum registro.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-primary text-white">Tempos de Atendimento por Dia</div>
+      <div class="card-body p-2" style="max-height: 350px; overflow-y: auto;">
+        <table class="table table-bordered table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Qtd Atendimentos</th>
+              <th>Média</th>
+              <th>Mínimo</th>
+              <th>Máximo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for data_emissao, qtd, media, minimo, maximo in tempos_atendimento %}
+            <tr>
+              <td>{{ data_emissao.strftime('%d/%m/%Y') }}</td>
+              <td>{{ qtd }}</td>
+              <td>{% if media %}{{ media|segundos_para_hhmm }}{% else %}-{% endif %}</td>
+              <td>{% if minimo %}{{ minimo|segundos_para_hhmm }}{% else %}-{% endif %}</td>
+              <td>{% if maximo %}{{ maximo|segundos_para_hhmm }}{% else %}-{% endif %}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center">Nenhum registro.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-primary text-white">Atendimentos por Operador</div>
+      <div class="card-body p-2" style="max-height: 350px; overflow-y: auto;">
+        <table class="table table-bordered table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Operador</th>
+              <th>Quantidade de Atendimentos</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for username, total in atendimentos_por_operador %}
+            <tr>
+              <td>{{ username }}</td>
+              <td>{{ total }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2" class="text-center">Nenhum registro.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary my-3">Voltar ao Dashboard</a>
+{% endblock %}

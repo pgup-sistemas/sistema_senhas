@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Escolha seu Guichê</h2>
+  <form method="post">
+    <div class="form-group">
+      <label for="guiche">Guichê:</label>
+      <input type="text" class="form-control" id="guiche" name="guiche" value="{{ guiche or '' }}" required>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Salvar</button>
+  </form>
+</div>
+{% endblock %}
