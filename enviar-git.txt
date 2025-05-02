@@ -1,0 +1,189 @@
+# Guia Completo Git no Terminal do VS Code
+
+## Parte 1: Criando e Configurando um Novo Repositório
+
+### Passo 1: Configuração Inicial (apenas uma vez)
+```bash
+# Configurar nome de usuário e email global
+git config --global user.name "seu-nome-de-usuario"
+git config --global user.email "seu-email@exemplo.com"
+```
+
+### Passo 2: Iniciando um Novo Repositório Local
+```bash
+# Navegue até a pasta do projeto
+cd caminho/para/seu/projeto
+
+# Inicialize o repositório Git
+git init
+```
+
+### Passo 3: Criando o Primeiro Commit
+```bash
+# Adicione todos os arquivos ao staging
+git add .
+
+# OU adicione arquivos específicos
+git add arquivo1.js arquivo2.css
+
+# Faça o commit inicial
+git commit -m "Commit inicial"
+```
+
+### Passo 4: Criando o Repositório no GitHub
+1. Acesse o GitHub (github.com)
+2. Clique em "+" no canto superior direito e selecione "New repository"
+3. Nomeie seu repositório e configure outras opções
+4. NÃO inicialize com README, .gitignore ou license
+5. Clique em "Create repository"
+
+### Passo 5: Conectando o Repositório Local ao GitHub
+```bash
+# Use o URL fornecido após criar o repositório no GitHub
+git remote add origin https://github.com/seu-usuario/nome-do-repositorio.git
+
+# Renomeie o branch para 'main' se necessário (prática moderna)
+git branch -M main
+
+# Faça o primeiro push
+git push -u origin main
+```
+
+## Parte 2: Fluxo de Trabalho Diário
+
+### Verificando o Status do Repositório
+```bash
+# Verificar quais arquivos foram modificados
+git status
+```
+
+### Adicionando e Commitando Alterações
+```bash
+# Adicione todas as alterações
+git add .
+
+# OU adicione arquivos específicos
+git add caminho/para/arquivo
+
+# Faça o commit com uma mensagem descritiva
+git commit -m "Descreva suas alterações aqui"
+```
+
+### Enviando Alterações para o GitHub
+```bash
+# Envie as alterações (depois do primeiro push, você pode usar apenas 'git push')
+git push
+```
+
+### Atualizando seu Repositório Local
+```bash
+# Baixe alterações do repositório remoto sem mesclar
+git fetch
+
+# Baixe e mescle alterações do repositório remoto
+git pull
+```
+
+## Parte 3: Trabalhando com Branches
+
+### Criando e Mudando de Branch
+```bash
+# Criar um novo branch
+git checkout -b nome-do-novo-branch
+
+# OU criar e mudar em dois comandos
+git branch nome-do-novo-branch
+git checkout nome-do-novo-branch
+```
+
+### Enviando um Branch para o GitHub
+```bash
+# Envie o branch atual para o GitHub
+git push -u origin nome-do-branch
+```
+
+### Mesclando Branches
+```bash
+# Primeiro, mude para o branch que receberá as alterações (geralmente 'main')
+git checkout main
+
+# Mescle o branch de funcionalidade
+git merge nome-do-branch-funcionalidade
+
+# Envie as alterações mescladas para o GitHub
+git push
+```
+
+## Parte 4: Resolvendo Problemas Comuns
+
+### Cancelando Alterações Não Commitadas
+```bash
+# Desfazer alterações em um arquivo específico
+git checkout -- nome-do-arquivo
+
+# Desfazer todas as alterações não preparadas para commit
+git restore .
+```
+
+### Removendo Arquivos do Staging
+```bash
+# Remover um arquivo do staging (mas mantém as alterações no arquivo)
+git restore --staged nome-do-arquivo
+```
+
+### Corrigindo o Último Commit
+```bash
+# Modifique o último commit (apenas se não tiver feito push)
+git commit --amend -m "Nova mensagem de commit"
+```
+
+### Lidando com Conflitos de Merge
+1. Após um conflito durante `git merge` ou `git pull`:
+   - Abra os arquivos com conflitos no VS Code
+   - Procure por marcações como `<<<<<<< HEAD`, `=======`, e `>>>>>>> branch-name`
+   - Edite os arquivos para resolver os conflitos
+2. Depois de resolver:
+   ```bash
+   git add .
+   git commit -m "Resolve conflitos de merge"
+   ```
+
+## Dicas Úteis
+
+### Visualizando o Histórico
+```bash
+# Ver histórico de commits
+git log
+
+# Visualização mais compacta
+git log --oneline
+
+# Visualização gráfica
+git log --graph --oneline --all
+```
+
+### Salvando Alterações Temporariamente (Stash)
+```bash
+# Salvar alterações temporariamente
+git stash
+
+# Listar stashes salvos
+git stash list
+
+# Recuperar o último stash
+git stash pop
+
+# Recuperar um stash específico
+git stash apply stash@{n}
+```
+
+### Aliases Úteis para Configurar
+```bash
+# Configurar alguns atalhos úteis
+git config --global alias.st status
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.ci commit
+```
+
+Após configurar, você pode usar `git st` em vez de `git status`, por exemplo.
