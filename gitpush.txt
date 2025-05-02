@@ -1,0 +1,45 @@
+Claro! Aqui está um **passo a passo descritivo em formato de texto** explicando como realizar um `git push`, do início até o envio do código para o GitHub:
+
+---
+
+### 📘 **Passo a passo para realizar um `git push`**
+
+1. **Abra o terminal do VS Code**
+   Inicie o terminal integrado do VS Code para executar comandos Git. Você pode abrir o terminal pelo menu superior (Terminal > Novo Terminal) ou usando o atalho \`Ctrl + \`\` (crase).
+
+2. **Verifique o status do repositório**
+   Use o comando `git status` para ver quais arquivos foram modificados, adicionados ou ainda não estão sob controle de versão. Isso ajuda a garantir que você está ciente de tudo o que será enviado.
+
+3. **Adicione as alterações ao Git**
+   Execute `git add .` para adicionar todos os arquivos modificados ao *staging area*, ou seja, preparar os arquivos para serem incluídos no próximo commit.
+   Se quiser adicionar arquivos específicos, use `git add nome-do-arquivo`.
+
+4. **Faça um commit das alterações**
+   Com o comando `git commit -m "Mensagem explicando o que foi alterado"`, você registra uma nova versão no histórico do projeto com uma descrição do que foi feito. Escreva mensagens claras e úteis, como `"Corrige bug na autenticação de usuários"`.
+
+5. **Envie os commits para o GitHub (push)**
+   Agora você pode enviar os commits para o repositório remoto com o comando:
+
+   * Se é a **primeira vez** que você envia essa branch:
+
+     ```bash
+     git push --set-upstream origin master
+     ```
+
+     Esse comando vincula sua branch local `master` com a `origin/master` no GitHub.
+   * Nas **próximas vezes**, você pode usar apenas:
+
+     ```bash
+     git push
+     ```
+
+6. **Aguarde a conclusão**
+   O Git irá autenticar sua conta (pode pedir login pelo navegador, token ou SSH) e então enviar os dados.
+   Se tudo correr bem, você verá mensagens como `"To https://github.com/seu-usuario/seu-repo.git"` e `"branch 'master' set up to track 'origin/master'"`.
+
+7. **Confirme que está tudo atualizado**
+   Se você tentar enviar novamente sem novas alterações, verá a mensagem `"Everything up-to-date"`, o que indica que seu repositório local e o remoto estão sincronizados.
+
+---
+
+Se quiser, posso te mandar esse passo a passo em formato `.txt`, `.md` (Markdown) ou `.pdf`. Deseja isso?
