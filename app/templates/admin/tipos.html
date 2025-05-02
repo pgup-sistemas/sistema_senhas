@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Tipos de Atendimento{% endblock %}
+{% block content %}
+<h2 class="mb-4">Tipos de Atendimento</h2>
+<a href="{{ url_for('admin.novo_tipo') }}" class="btn btn-primary mb-3">Novo Tipo</a>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Sigla</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in tipos %}
+    <tr>
+      <td>{{ t.nome }}</td>
+      <td>{{ t.sigla }}</td>
+      <td>
+        <a href="{{ url_for('admin.editar_tipo', tipo_id=t.id) }}" class="btn btn-warning btn-sm">Editar</a>
+        <form method="post" action="{{ url_for('admin.delete_tipo', tipo_id=t.id) }}" style="display:inline;">
+          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remover este tipo?')">Remover</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3" class="text-center">Nenhum tipo cadastrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary mt-3">Voltar ao Dashboard</a>
+{% endblock %}

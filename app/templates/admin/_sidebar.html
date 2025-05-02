@@ -1,0 +1,42 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-light min-vh-100" style="width: 100%; max-width: 220px;">
+  <a href="{{ url_for('admin.dashboard') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+    <span class="fs-4">Admin</span>
+  </a>
+  <hr>
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+      <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('admin.usuarios') }}" class="nav-link {% if 'usuarios' in request.endpoint %}active{% endif %}">
+        Usuários
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('admin.tipos') }}" class="nav-link {% if 'tipos' in request.endpoint %}active{% endif %}">
+        Tipos de Atendimento
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('admin_guiche.listar_guiches') }}" class="nav-link {% if 'guiche' in request.endpoint %}active{% endif %}">
+        Guichês
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('admin.relatorios') }}" class="nav-link {% if 'relatorios' in request.endpoint %}active{% endif %}">
+        Relatórios
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('admin.configuracoes') }}" class="nav-link {% if 'configuracoes' in request.endpoint %}active{% endif %}">
+        Configurações
+      </a>
+    </li>
+  </ul>
+  <hr>
+  <div>
+    <a href="{{ url_for('admin.logout') }}" class="btn btn-outline-danger w-100">Sair</a>
+  </div>
+</div>

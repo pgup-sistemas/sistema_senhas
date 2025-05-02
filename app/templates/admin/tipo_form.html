@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Novo Tipo de Atendimento{% endblock %}
+{% block content %}
+<h2 class="mb-4">Novo Tipo de Atendimento</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="nome" class="form-label">Nome</label>
+    <input type="text" class="form-control" id="nome" name="nome" required autofocus>
+  </div>
+  <div class="mb-3">
+    <label for="sigla" class="form-label">Sigla</label>
+    <input type="text" class="form-control" id="sigla" name="sigla" maxlength="3" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Salvar</button>
+  <a href="{{ url_for('admin.tipos') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

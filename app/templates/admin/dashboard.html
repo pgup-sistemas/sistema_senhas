@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row flex-nowrap">
+    <nav class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light min-vh-100">
+      {% include 'admin/_sidebar.html' %}
+    </nav>
+    <main class="col py-3">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <h2 class="mb-0">Dashboard Administrativo</h2>
+        <button id="toggle-theme" class="btn btn-outline-secondary">Alternar Tema</button>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+          <div class="card text-center h-100">
+            <div class="card-body">
+              <h5 class="card-title">Senhas Emitidas Hoje</h5>
+              <p class="display-4 fw-bold">{{ total_emitidas }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card text-center h-100">
+            <div class="card-body">
+              <h5 class="card-title">Senhas Chamadas Hoje</h5>
+              <p class="display-4 fw-bold">{{ total_chamadas }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card text-center h-100">
+            <div class="card-body">
+              <h5 class="card-title">Tempo Médio de Atendimento</h5>
+              {% if tempo_medio is not none %}
+                <p class="display-4 fw-bold">{{ (tempo_medio // 60) }}m {{ (tempo_medio % 60) }}s</p>
+              {% else %}
+                <p class="display-4 fw-bold">N/A</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-4">
+        <div class="card-header">Senhas Emitidas por Tipo</div>
+        <div class="card-body">
+          <canvas id="graficoTipos"></canvas>
+        </div>
+      </div>
+      <a href="{{ url_for('admin.relatorios') }}" class="btn btn-outline-primary">Ver Relatórios</a>
+      <a href="{{ url_for('admin.usuarios') }}" class="btn btn-outline-secondary me-2">Usuários</a>
+      <a href="{{ url_for('admin.tipos') }}" class="btn btn-outline-secondary me-2">Tipos de Atendimento</a>
+      <a href="{{ url_for('admin_guiche.listar_guiches') }}" class="btn btn-outline-secondary me-2">Configurar Guichês</a>
+    </main>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const dados = {
+    labels: {{ grafico_tipos|map(attribute='label')|list|tojson }},
+    datasets: [{
+      label: 'Senhas',
+      data: {{ grafico_tipos|map(attribute='value')|list|tojson }},
+      backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d']
+    }]
+  };
+  const config = {
+    type: 'bar',
+    data: dados,
+    options: { plugins: { legend: { display: false } } }
+  };
+  new Chart(document.getElementById('graficoTipos'), config);
+</script>
+<script>
+(function() {
+  // Tema escuro/claro
+  const btn = document.getElementById('toggle-theme');
+  const html = document.documentElement;
+  const theme = localStorage.getItem('theme');
+  if (theme === 'dark') html.classList.add('dark-mode');
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark-mode');
+    localStorage.setItem('theme', html.classList.contains('dark-mode') ? 'dark' : 'light');
+  });
+})();
+</script>
+<style>
+.dark-mode {
+  background: #23272f !important;
+  color: #f8f9fa !important;
+}
+.dark-mode .bg-light { background: #23272f !important; }
+.dark-mode .card { background: #343a40; color: #f8f9fa; }
+.dark-mode .card-header { background: #23272f; color: #f8f9fa; }
+.dark-mode .btn-outline-secondary { color: #f8f9fa; border-color: #f8f9fa; }
+.dark-mode .btn-outline-secondary:hover { background: #f8f9fa; color: #23272f; }
+</style>
+{% endblock %}
