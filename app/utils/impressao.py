@@ -42,7 +42,9 @@ def imprimir_senha(senha, tipo, nome_clinica=None):
             draw = ImageDraw.Draw(img)
             y = 10
             for line in texto.split('\n'):
-                w, h = draw.textsize(line, font=font)
+                # Substituindo textsize() pelo método textbbox()
+                left, top, right, bottom = draw.textbbox((0, 0), line, font=font)
+                w, h = right - left, bottom - top
                 draw.text(((384-w)//2, y), line, font=font, fill=0)
                 y += h + 6
             hDC = win32ui.CreateDC()
@@ -91,3 +93,4 @@ def imprimir_senha(senha, tipo, nome_clinica=None):
             return True, 'Impressão enviada.'
         except Exception as e:
             return False, str(e)
+        
