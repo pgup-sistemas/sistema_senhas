@@ -1,7 +1,7 @@
 Flask-Login==0.6.3
 Flask-Migrate==4.0.5
 python-dotenv==1.0.1
-pycups==2.0.1
+#pycups==2.0.1
 # Para Windows, instale manualmente:
 # pip install pywin32 Pillow
 # Dependências adicionais recomendadas para produção e compatibilidade
