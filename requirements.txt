@@ -1,5 +1,4 @@
 Flask-Login==0.6.3
-Flask-SocketIO==5.3.6
 Flask-Migrate==4.0.5
 python-dotenv==1.0.1
 pycups==2.0.1
